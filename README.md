@@ -4,8 +4,6 @@ A production-grade multi-agent AI application featuring tool calling, real-time 
 
 ## Architecture
 
-## Architecture
-
     User (React UI)
          ↕ WebSocket
     FastAPI Backend
@@ -30,6 +28,7 @@ A production-grade multi-agent AI application featuring tool calling, real-time 
 
 ## Project Structure
 
+```
 multi-agent-research/
 ├── backend/
 │   ├── agents/
@@ -80,6 +79,7 @@ multi-agent-research/
 │       └── ci-cd.yml
 ├── docker-compose.yml
 └── README.md
+```
 
 ## Quick Start
 
