@@ -4,11 +4,18 @@ A production-grade multi-agent AI application featuring tool calling, real-time 
 
 ## Architecture
 
-User (React UI) -> WebSocket -> FastAPI Backend -> LangGraph Orchestrator
-                                                        |-- Planner Agent
-                                                        |-- Researcher Agent
-                                                        |-- Writer Agent
-                                                   SQLite + ChromaDB
+## Architecture
+
+    User (React UI)
+         ↕ WebSocket
+    FastAPI Backend
+         ↕
+    LangGraph Orchestrator
+         ├── Planner Agent    — breaks query into sub-tasks
+         ├── Researcher Agent — web search, PDF reader, SQL query
+         └── Writer Agent     — synthesizes final answer
+         ↕
+    SQLite + ChromaDB
 
 ## Tech Stack
 
