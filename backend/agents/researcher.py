@@ -5,15 +5,15 @@ from tools import RESEARCHER_TOOLS
 from core.config import settings
 from core.logging import logger
 from datetime import datetime
-import json
 
 
-RESEARCHER_SYSTEM_PROMPT = """You are a Research Agent with access to these tools:
+RESEARCHER_SYSTEM_PROMPT = """You are a Research Agent. You have access to these tools:
 - web_search: search the web for current information
-- read_pdf: extract text from PDF files or URLs
+- read_pdf: extract text from PDF files or URLs  
 - query_knowledge_base: search internal database
 
-Execute each sub-task using the most appropriate tool. Be thorough and extract key information."""
+For the given research tasks, call the appropriate tools one at a time to gather information.
+After gathering enough information, provide a summary of your findings."""
 
 
 def researcher_agent(state: ResearchState) -> ResearchState:
@@ -23,7 +23,7 @@ def researcher_agent(state: ResearchState) -> ResearchState:
         model=settings.groq_model,
         api_key=settings.groq_api_key,
         temperature=0.1,
-    ).bind_tools(RESEARCHER_TOOLS)
+    ).bind_tools(RESEARCHER_TOOLS, tool_choice="auto")
 
     trace_events: list[AgentEvent] = [{
         "type": "agent_start",
@@ -39,19 +39,21 @@ def researcher_agent(state: ResearchState) -> ResearchState:
     messages = list(state.get("messages", []))
 
     try:
-        sub_tasks_text = "\n".join(f"{i+1}. {t}" for i, t in enumerate(state.get("sub_tasks", [])))
+        sub_tasks_text = "\n".join(
+            f"{i+1}. {t}" for i, t in enumerate(state.get("sub_tasks", []))
+        )
 
         current_messages = [
             SystemMessage(content=RESEARCHER_SYSTEM_PROMPT),
             HumanMessage(content=f"""Research query: {state['query']}
 
-Sub-tasks to execute:
+Please execute these research tasks:
 {sub_tasks_text}
 
-Execute each sub-task using appropriate tools and compile findings."""),
+Use the web_search tool to search for information. Call tools one at a time."""),
         ]
 
-        max_iterations = 6
+        max_iterations = 8
         iteration = 0
 
         while iteration < max_iterations:
@@ -59,29 +61,36 @@ Execute each sub-task using appropriate tools and compile findings."""),
             response = llm.invoke(current_messages)
             current_messages.append(response)
 
-            if not response.tool_calls:
+            # No tool calls — agent is done
+            if not hasattr(response, 'tool_calls') or not response.tool_calls:
                 logger.info(f"[Researcher] Completed in {iteration} iterations")
-                findings.append(response.content)
+                if response.content:
+                    findings.append(response.content)
                 break
 
+            # Execute each tool call
             for tool_call in response.tool_calls:
                 tool_name = tool_call["name"]
                 tool_input = tool_call["args"]
                 tool_id = tool_call["id"]
 
-                logger.info(f"[Researcher] Calling tool: {tool_name}")
+                logger.info(f"[Researcher] Calling tool: {tool_name} args: {tool_input}")
 
                 trace_events.append({
                     "type": "tool_call",
                     "agent": "researcher",
-                    "content": f"Calling {tool_name}",
+                    "content": f"Calling {tool_name} with: {tool_input}",
                     "tool_name": tool_name,
                     "tool_input": tool_input,
                     "timestamp": datetime.utcnow().isoformat(),
                 })
 
                 tool_result = _execute_tool(tool_name, tool_input)
-                sources.append(f"{tool_name}: {list(tool_input.values())[0]}")
+
+                # Track sources
+                if tool_input:
+                    first_val = list(tool_input.values())[0]
+                    sources.append(f"{tool_name}: {first_val}")
 
                 trace_events.append({
                     "type": "tool_result",
