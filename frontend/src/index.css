@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #111118;
+    --bg-tertiary: #18181f;
+    --border: rgba(255,255,255,0.07);
+    --text-primary: #f0f0f5;
+    --text-secondary: #8b8ba0;
+    --accent-cyan: #00d4ff;
+    --accent-purple: #a855f7;
+    --accent-green: #10b981;
+  }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+}
+
+@layer components {
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(12px);
+  }
+
+  .thinking-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: thinking 1.4s ease-in-out infinite;
+  }
+  .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+  .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  .prose-dark { color: #d4d4e0; line-height: 1.75; }
+  .prose-dark h1, .prose-dark h2, .prose-dark h3 {
+    color: #f0f0f5;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+  }
+  .prose-dark h2 { font-size: 1.2rem; }
+  .prose-dark h3 { font-size: 1rem; }
+  .prose-dark ul, .prose-dark ol { padding-left: 1.5em; }
+  .prose-dark li { margin-bottom: 0.25em; }
+  .prose-dark code {
+    background: rgba(0, 212, 255, 0.08);
+    color: #00d4ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+  }
+  .prose-dark strong { color: #f0f0f5; font-weight: 600; }
+  .prose-dark blockquote {
+    border-left: 3px solid #a855f7;
+    padding-left: 1em;
+    color: #8b8ba0;
+  }
+  .prose-dark a { color: #00d4ff; text-decoration: underline; }
+  .prose-dark hr { border-color: rgba(255,255,255,0.07); }
+}
+
+@keyframes thinking {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-slide-up { animation: slideUp 0.3s ease-out; }
+.animate-fade-in { animation: fadeIn 0.3s ease-out; }
