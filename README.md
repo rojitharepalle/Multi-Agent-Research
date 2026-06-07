@@ -2,6 +2,14 @@
 
 ![CI/CD Pipeline](https://github.com/rojitharepalle/Multi-Agent-Research/actions/workflows/ci-cd.yml/badge.svg)
 
+## Demo
+
+### Agent Trace — Live tool calling view
+![Agent Trace](assets/demo-trace.png)
+
+### Final Answer — Synthesized markdown response
+![Final Answer](assets/demo-answer.png)
+
 A production-grade multi-agent AI application featuring tool calling, real-time streaming, and a modern React dashboard.
 
 ## Architecture
@@ -157,6 +165,7 @@ On every push to main, GitHub Actions will:
 1. Run 13 backend unit tests
 2. Build and verify React frontend
 3. Build Docker images for backend and frontend
+
 
 ### Required GitHub Secrets
 
