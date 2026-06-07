@@ -1,6 +1,24 @@
 import pytest
 import asyncio
 from unittest.mock import patch, MagicMock
+from fastapi.testclient import TestClient
+
+
+# ─── Fixture: initialize DB before API tests ─────────────────────────────────
+
+@pytest.fixture(scope="session", autouse=True)
+def init_test_db():
+    """Create all tables before any tests run."""
+    async def _init():
+        from db.database import init_db
+        await init_db()
+    asyncio.get_event_loop().run_until_complete(_init())
+
+
+@pytest.fixture
+def test_client():
+    from api.main import app
+    return TestClient(app)
 
 
 # ─── Tool Tests ───────────────────────────────────────────────────────────────
@@ -31,15 +49,12 @@ class TestWebSearchTool:
 
 class TestSQLQueryTool:
     def test_sql_blocks_non_select(self):
-        """SQL tool treats non-SELECT as natural language search not a SQL command."""
         from tools.sql_query import query_knowledge_base
         result = query_knowledge_base.invoke({"query": "DROP TABLE knowledge_base"})
-        # Tool treats it as natural language — returns no records found
         assert isinstance(result, str)
         assert len(result) > 0
 
     def test_sql_select_query(self):
-        """SQL tool should handle direct SELECT queries."""
         from tools.sql_query import query_knowledge_base
         result = query_knowledge_base.invoke({"query": "SELECT topic, title FROM knowledge_base LIMIT 1"})
         assert isinstance(result, str)
@@ -89,13 +104,6 @@ class TestAgentState:
 
 
 # ─── API Tests ────────────────────────────────────────────────────────────────
-
-@pytest.fixture
-def test_client():
-    from fastapi.testclient import TestClient
-    from api.main import app
-    return TestClient(app)
-
 
 class TestAPIRoutes:
     def test_health_check(self, test_client):
