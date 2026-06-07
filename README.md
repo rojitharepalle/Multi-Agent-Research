@@ -1,5 +1,7 @@
 # 🤖 Multi-Agent Research System
 
+![CI/CD Pipeline](https://github.com/rojitharepalle/Multi-Agent-Research/actions/workflows/ci-cd.yml/badge.svg)
+
 A production-grade multi-agent AI application featuring tool calling, real-time streaming, and a modern React dashboard.
 
 ## Architecture
@@ -17,14 +19,14 @@ A production-grade multi-agent AI application featuring tool calling, real-time 
 
 ## Tech Stack
 
-| Layer         | Technology                        |
-|---------------|-----------------------------------|
-| Orchestration | LangGraph                         |
-| LLM           | OpenAI GPT-4o                     |
-| Tools         | Tavily, PyMuPDF, SQLite           |
-| Backend       | FastAPI + WebSockets              |
-| Frontend      | React + TailwindCSS + Zustand     |
-| Deploy        | Docker + GitHub Actions           |
+| Layer         | Technology                             |
+|---------------|----------------------------------------|
+| Orchestration | LangGraph                              |
+| LLM           | Groq (llama-3.3-70b-versatile)         |
+| Tools         | Tavily (search), PyMuPDF (PDF), SQLite |
+| Backend       | FastAPI + WebSockets                   |
+| Frontend      | React + TailwindCSS + Zustand          |
+| Deploy        | Docker + GitHub Actions                |
 
 ## Project Structure
 
@@ -51,7 +53,7 @@ multi-agent-research/
 │   ├── db/
 │   │   └── database.py       - SQLAlchemy async models
 │   ├── tests/
-│   │   └── test_agents.py    - Unit tests
+│   │   └── test_agents.py    - 13 unit tests
 │   ├── requirements.txt
 │   ├── Dockerfile
 │   └── .env.example
@@ -81,18 +83,29 @@ multi-agent-research/
 └── README.md
 ```
 
+## Current Status
+
+- [x] Day 1 — Project scaffold + FastAPI + Database
+- [x] Day 2 — Tools (web search, PDF, SQL) + LangGraph Agents
+- [x] Day 3 — WebSocket real-time streaming
+- [x] Day 4 — React frontend with live agent trace UI
+- [x] Day 5 — Docker + GitHub Actions CI/CD
+- [x] Day 6 — Unit tests (13 passing)
+- [x] Day 7 — Production config + polish
+
 ## Quick Start
 
 ### Prerequisites
 - Python 3.11+
 - Node.js 20+
-- OpenAI API key
-- Tavily API key (free at tavily.com)
+- Groq API key (free at console.groq.com)
+- Tavily API key (free at app.tavily.com)
 
 ### Backend Setup
 
     cd backend
     cp .env.example .env
+    python3.11 -m venv venv
     source venv/bin/activate
     pip install -r requirements.txt
     uvicorn api.main:app --reload
@@ -109,13 +122,14 @@ multi-agent-research/
 
 ## Environment Variables
 
-    OPENAI_API_KEY=sk-...
+    GROQ_API_KEY=gsk-...
     TAVILY_API_KEY=tvly-...
     DATABASE_URL=sqlite+aiosqlite:///./research.db
     CHROMA_PERSIST_DIR=./chroma_db
     ENVIRONMENT=development
     LOG_LEVEL=INFO
-    CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+    CORS_ORIGINS=["http://localhost:5173","http://localhost:3000"]
+    GROQ_MODEL=llama-3.3-70b-versatile
 
 ## How It Works
 
@@ -123,8 +137,8 @@ multi-agent-research/
 2. WebSocket connection opens between frontend and FastAPI
 3. Planner Agent analyzes the query and creates a research plan with 2-4 sub-tasks
 4. Researcher Agent executes each sub-task using tools
-   - web_search  : searches the web via Tavily API
-   - read_pdf    : extracts text from PDF files or URLs
+   - web_search           : searches the web via Tavily API
+   - read_pdf             : extracts text from PDF files or URLs
    - query_knowledge_base : queries internal SQLite database
 5. Writer Agent synthesizes all findings into a structured markdown answer
 6. Each agent event streams live to the React frontend via WebSocket
@@ -134,22 +148,20 @@ multi-agent-research/
 
     cd backend
     source venv/bin/activate
-    pytest tests/ -v
+    python -m pytest tests/ -v
+    # Expected: 13 passed
 
-## Deployment
+## CI/CD
 
 On every push to main, GitHub Actions will:
-1. Run backend tests
-2. Build frontend
-3. Build and push Docker images to GitHub Container Registry
-4. Deploy to HuggingFace Spaces
+1. Run 13 backend unit tests
+2. Build and verify React frontend
+3. Build Docker images for backend and frontend
 
 ### Required GitHub Secrets
 
-| Secret          | Description                          |
-|-----------------|--------------------------------------|
-| OPENAI_API_KEY  | OpenAI API key                       |
-| TAVILY_API_KEY  | Tavily search API key                |
-| HF_TOKEN        | HuggingFace access token             |
-| HF_SPACE        | HuggingFace space name               |
+| Secret         | Description           |
+|----------------|-----------------------|
+| GROQ_API_KEY   | Groq API key          |
+| TAVILY_API_KEY | Tavily search API key |
 
